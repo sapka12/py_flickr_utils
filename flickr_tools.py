@@ -1,9 +1,11 @@
+import logging
+import os
 import urllib
-
 import flickrapi
 import yaml
 from flickrapi.auth import FlickrAccessToken
-import logging
+import hashlib
+
 
 settings_filename = "settings.yaml"
 log_file = "flickr_up.log"
@@ -27,7 +29,8 @@ def photosets(flickr):
         current_sets = [
             (ps[u'id'], ps[u'title'][u'_content'])
             for ps
-            in flickr.photosets.getList(format="parsed-json", per_page=_page_size, page=_page)[u'photosets'][u'photoset']
+            in
+            flickr.photosets.getList(format="parsed-json", per_page=_page_size, page=_page)[u'photosets'][u'photoset']
         ]
 
         new_aggr = aggr + current_sets
@@ -109,3 +112,24 @@ def add_to_album(pic_id, album, flickr):
     else:
         return create_album(album, pic_id, flickr)
 
+
+def md5(fname):
+    hash_md5 = hashlib.md5()
+    with open(fname, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
+
+
+def hash_by_photoid(photo_id, flickr):
+    url = flickr.photos.getSizes(photo_id=photo_id)[0][0].attrib["source"]
+    filename = photo_id
+    urllib.request.urlretrieve(url, filename)
+    md5_hash = md5(filename)
+    print(photo_id, md5_hash)
+    os.remove(filename)
+    return md5_hash
+
+
+def add_tag(photo_id, tag, flickr):
+    flickr.photos.addTags(photo_id=photo_id, tags=tag)

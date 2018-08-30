@@ -1,5 +1,4 @@
 import argparse
-import sys
 from flickr_tools import get_flickr, photoset_id, pictures_in_photoset
 
 
