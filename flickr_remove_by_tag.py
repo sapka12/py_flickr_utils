@@ -13,7 +13,7 @@ def remove_from_set(picture_id, set_id, flickr):
     flickr.photosets.removePhoto(photoset_id=set_id, photo_id=picture_id)
 
 
-def main():
+def main(args):
     set_name = args.album_name
     tag = args.tag if args.tag else "duplicate"
 

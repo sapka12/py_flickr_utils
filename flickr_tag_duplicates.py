@@ -30,7 +30,9 @@ def main(args):
         if md5_hash:
             if md5_hash in hashes:
                 if args.tag:
-                    add_tag(pic_id, args.tag, flickr)
+                    tags = args.tag.split(",")
+                    for tag in tags:
+                        add_tag(pic_id, tag, flickr)
                 else:
                     add_tag(pic_id, "duplicate", flickr)
                     add_tag(pic_id, "duplicate_in_" + set_name, flickr)

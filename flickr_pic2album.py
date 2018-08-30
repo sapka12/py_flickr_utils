@@ -1,3 +1,4 @@
+import argparse
 from contextlib import contextmanager
 
 from flickrapi import FlickrError
@@ -28,27 +29,34 @@ def get_album(title):
             return album_format(year, month)
 
 
-def main():
-    albumname = "Auto Upload"
+def upload(pic, album, flickr):
+    try:
+        fkr.add_to_album(pic['id'], album, flickr)
+        print(pic['title'], "added to", album)
+    except FlickrError as f_err:
+        print(pic['title'], "already in", album)
 
-    flickr = fkr.get_flickr()
 
+def main(args):
+    albumname = args.album_name if args.album_name else "Auto Upload"
+    flickr = fkr.get_flickr(args.api_key, args.api_secret, args.token, args.token_secret)
     set_id = fkr.photoset_id(albumname, flickr)
-
     pics = fkr.pictures_in_photoset(set_id, flickr)
-
-    def upload(pic, album):
-        try:
-            fkr.add_to_album(pic['id'], album, flickr)
-            print(pic['title'], "added to", album)
-        except FlickrError as f_err:
-            print(pic['title'], "already in", album)
 
     for pic in pics:
         album = get_album(pic['title'])
         if album:
-            upload(pic, album)
+            upload(pic, album, flickr)
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='Download the content of a Flickr album.')
+    parser.add_argument('--album_name', help="name of the Flickr album", type=str)
+    parser.add_argument('--tag', help="add this tag to the duplicated pictures", type=str)
+
+    parser.add_argument('--api_key', help="id of the Flickr album", type=str, required=True)
+    parser.add_argument('--api_secret', help="id of the Flickr album", type=str, required=True)
+    parser.add_argument('--token', help="id of the Flickr album", type=str, required=True)
+    parser.add_argument('--token_secret', help="id of the Flickr album", type=str, required=True)
+
+    main(parser.parse_args())
