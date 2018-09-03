@@ -1,8 +1,6 @@
 import argparse
-from contextlib import contextmanager
-
 from flickrapi import FlickrError
-import flickr_tools as fkr
+from flickr_tools import FlickrTools
 
 
 def get_album(title):
@@ -31,7 +29,7 @@ def get_album(title):
 
 def upload(pic, album, flickr):
     try:
-        fkr.add_to_album(pic['id'], album, flickr)
+        flickr.add_to_album(pic['id'], album)
         print(pic['title'], "added to", album)
     except FlickrError as f_err:
         print(pic['title'], "already in", album)
@@ -39,9 +37,9 @@ def upload(pic, album, flickr):
 
 def main(args):
     albumname = args.album_name if args.album_name else "Auto Upload"
-    flickr = fkr.get_flickr(args.api_key, args.api_secret, args.token, args.token_secret)
-    set_id = fkr.photoset_id(albumname, flickr)
-    pics = fkr.pictures_in_photoset(set_id, flickr)
+    flickr = FlickrTools(args.api_key, args.api_secret, args.token, args.token_secret)
+    set_id = flickr.photoset_id(albumname)
+    pics = flickr.pictures_in_photoset(set_id)
 
     for pic in pics:
         album = get_album(pic['title'])

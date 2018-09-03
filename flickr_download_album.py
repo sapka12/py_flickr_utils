@@ -1,13 +1,10 @@
 import argparse
-from flickr_tools import get_flickr, download
+from flickr_tools import FlickrTools
 
 
 def download_album(album_id, flickr):
-    photo_set = [{'id': p.attrib['id'], 'title': p.attrib['title']} for p in
-                 list(flickr.photosets.getPhotos(photoset_id=album_id)[0])]
-
-    for photo in photo_set:
-        download(photo['id'], photo['title'], flickr, album_id + "_")
+    for photo in flickr.pictures_in_photoset(album_id):
+        flickr.download(photo['id'], photo['title'], album_id + "_")
 
 
 def main():
@@ -21,7 +18,7 @@ def main():
 
     args = parser.parse_args()
 
-    flickr = get_flickr(args.api_key, args.api_secret, args.token, args.token_secret)
+    flickr = FlickrTools(args.api_key, args.api_secret, args.token, args.token_secret)
     download_album(args.album_id, flickr)
 
 

@@ -1,5 +1,5 @@
 import argparse
-from flickr_tools import get_flickr, photoset_id, pictures_in_photoset
+from flickr_tools import FlickrTools
 
 
 def contains_tag(picture_id, tag, flickr):
@@ -17,10 +17,10 @@ def main(args):
     set_name = args.album_name
     tag = args.tag if args.tag else "duplicate"
 
-    flickr = get_flickr(args.api_key, args.api_secret, args.token, args.token_secret)
+    flickr = FlickrTools(args.api_key, args.api_secret, args.token, args.token_secret)
 
-    set_id = photoset_id(set_name, flickr)
-    pics = [p['id'] for p in pictures_in_photoset(set_id, flickr)]
+    set_id = flickr.photoset_id(set_name)
+    pics = [p['id'] for p in flickr.pictures_in_photoset(set_id)]
     for picture_id in pics:
         if contains_tag(picture_id, tag, flickr):
             remove_from_set(picture_id, set_id, flickr)

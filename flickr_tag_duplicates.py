@@ -1,6 +1,6 @@
 import argparse
 from contextlib import contextmanager
-from flickr_tools import get_flickr, photoset_id, pictures_in_photoset, hash_by_photoid, add_tag
+from flickr_tools import FlickrTools
 
 
 @contextmanager
@@ -15,15 +15,15 @@ def print_time():
 def main(args):
     set_name = args.album_name
 
-    flickr = get_flickr(args.api_key, args.api_secret, args.token, args.token_secret)
+    flickr = FlickrTools(args.api_key, args.api_secret, args.token, args.token_secret)
 
-    set_id = photoset_id(set_name, flickr)
-    pics = [p['id'] for p in pictures_in_photoset(set_id, flickr)]
+    set_id = flickr.photoset_id(set_name)
+    pics = [p['id'] for p in flickr.pictures_in_photoset(set_id)]
 
     hashes = []
     for pic_id in pics:
         try:
-            md5_hash = hash_by_photoid(pic_id, flickr)
+            md5_hash = flickr.hash_by_photoid(pic_id)
         except:
             print("error during gathering hash of", pic_id)
 
@@ -32,10 +32,10 @@ def main(args):
                 if args.tag:
                     tags = args.tag.split(",")
                     for tag in tags:
-                        add_tag(pic_id, tag, flickr)
+                        flickr.add_tag(pic_id, tag)
                 else:
-                    add_tag(pic_id, "duplicate", flickr)
-                    add_tag(pic_id, "duplicate_in_" + set_name, flickr)
+                    flickr.add_tag(pic_id, "duplicate")
+                    flickr.add_tag(pic_id, "duplicate_in_" + set_name)
             else:
                 hashes.append(md5_hash)
 
