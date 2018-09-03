@@ -4,13 +4,31 @@ import urllib
 import flickrapi
 from flickrapi.auth import FlickrAccessToken
 import hashlib
+from idna import unicode
+from pip._vendor.distlib.compat import raw_input
 
 log_file = "flickr_up.log"
 
 
 class FlickrTools:
-    def __init__(self, api_key, api_secret, token, token_secret):
+    def __init__(self, api_key, api_secret, token=None, token_secret=None):
+        if not token or not token_secret:
+            token, token_secret = self.get_token(api_key, api_secret)
+            print("--token", token, "--token_secret", token_secret)
         self.flickr = self.get_flickr(api_key, api_secret, token, token_secret)
+
+    def get_token(self, api_key, api_secret):
+        flickr = flickrapi.FlickrAPI(api_key, api_secret, store_token=False)
+
+        flickr.get_request_token(oauth_callback='oob')
+
+        authorize_url = flickr.auth_url(perms=u'write')
+        print(authorize_url)
+
+        verifier = unicode(raw_input('Verifier code: '))
+        flickr.get_access_token(verifier)
+
+        return flickr.token_cache.token.token, flickr.token_cache.token.token_secret
 
     def get_flickr(self, api_key, api_secret, token, token_secret):
         logging.basicConfig(
