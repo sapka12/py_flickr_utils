@@ -3,9 +3,7 @@ from flickr_tools import FlickrTools
 
 
 def contains_tag(picture_id, tag, flickr):
-    response = flickr.tags.getListPhoto(photo_id=picture_id)
-    tags = [tag.attrib['raw'] for tag in list(response[0][0])]
-    return bool(tag in tags)
+    return bool(tag in flickr.get_tags(picture_id))
 
 
 def remove_from_set(picture_id, set_id, flickr):

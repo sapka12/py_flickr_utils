@@ -137,3 +137,7 @@ class FlickrTools:
 
     def add_tag(self, photo_id, tag):
         self.flickr.photos.addTags(photo_id=photo_id, tags=tag)
+
+    def get_tags(self, pic_id):
+        response = self.flickr.tags.getListPhoto(photo_id=pic_id)
+        return [tag.attrib['raw'] for tag in list(response[0][0])]
