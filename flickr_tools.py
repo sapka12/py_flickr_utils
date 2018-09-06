@@ -92,6 +92,9 @@ class FlickrTools:
 
         return photo_page([], 1)
 
+    def set_photo_title(self, photo_id, title):
+        self.flickr.photos.setMeta(photo_id=photo_id, title=title)
+
     def download(self, photo_id, filename, prefix=""):
         label_photo = "Original"
         label_video = "Video Original"
