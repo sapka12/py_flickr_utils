@@ -1,15 +1,5 @@
 import argparse
-from contextlib import contextmanager
-from flickr_tools import FlickrTools
-
-
-@contextmanager
-def print_time():
-    import datetime
-    start = datetime.datetime.now()
-    yield
-    end = datetime.datetime.now()
-    print(end - start)
+from flickr_tools import FlickrTools, print_time
 
 
 def main(args):
@@ -29,6 +19,9 @@ def main(args):
 
         if md5_hash:
             if md5_hash in hashes:
+
+                print("tagged", pic_id)
+
                 if args.tag:
                     tags = args.tag.split(",")
                     for tag in tags:

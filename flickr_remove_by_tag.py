@@ -1,16 +1,9 @@
 import argparse
-from flickr_tools import FlickrTools
+from flickr_tools import FlickrTools, print_time
 
 
 def contains_tag(picture_id, tag, flickr):
-    response = flickr.tags.getListPhoto(photo_id=picture_id)
-    tags = [tag.attrib['raw'] for tag in list(response[0][0])]
-    return bool(tag in tags)
-
-
-def remove_from_set(picture_id, set_id, flickr):
-    print("remove", picture_id, "from", set_id)
-    flickr.photosets.removePhoto(photoset_id=set_id, photo_id=picture_id)
+    return tag in flickr.get_tags(picture_id)
 
 
 def main(args):
@@ -23,7 +16,8 @@ def main(args):
     pics = [p['id'] for p in flickr.pictures_in_photoset(set_id)]
     for picture_id in pics:
         if contains_tag(picture_id, tag, flickr):
-            remove_from_set(picture_id, set_id, flickr)
+            print("remove", picture_id, "from", set_id)
+            flickr.remove_from_set(picture_id, set_id)
 
 
 if __name__ == "__main__":
@@ -38,4 +32,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    main(args)
+    with print_time():
+        main(args)

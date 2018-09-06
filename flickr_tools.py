@@ -1,13 +1,25 @@
 import logging
 import os
 import urllib
+from contextlib import contextmanager
+
 import flickrapi
 from flickrapi.auth import FlickrAccessToken
 import hashlib
 from idna import unicode
 from pip._vendor.distlib.compat import raw_input
+from PIL import Image
 
 log_file = "flickr_up.log"
+
+
+@contextmanager
+def print_time():
+    import datetime
+    start = datetime.datetime.now()
+    yield
+    end = datetime.datetime.now()
+    print(end - start)
 
 
 class FlickrTools:
@@ -119,11 +131,26 @@ class FlickrTools:
         else:
             return self.create_album(album, pic_id)
 
+    def pixels(self, fname):
+        im = Image.open(fname)
+        width = im.size[0]
+        height = im.size[1]
+        pix = im.load()
+
+        def j(arr):
+            return "".join(arr)
+
+        def hexa(x, y):
+            return j([hex(p) for p in pix[x, y]])
+
+        return (
+            j([j([hexa(x, y) for y in range(height)]) for x in range(width)])
+        ).encode('utf-8')
+
     def md5(self, fname):
+        px = self.pixels(fname)
         hash_md5 = hashlib.md5()
-        with open(fname, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                hash_md5.update(chunk)
+        hash_md5.update(px)
         return hash_md5.hexdigest()
 
     def hash_by_photoid(self, photo_id):
@@ -137,3 +164,10 @@ class FlickrTools:
 
     def add_tag(self, photo_id, tag):
         self.flickr.photos.addTags(photo_id=photo_id, tags=tag)
+
+    def get_tags(self, picture_id):
+        response = self.flickr.tags.getListPhoto(photo_id=picture_id)
+        return [tag.attrib['raw'] for tag in list(response[0][0])]
+
+    def remove_from_set(self, picture_id, set_id):
+        self.flickr.photosets.removePhoto(photoset_id=set_id, photo_id=picture_id)
