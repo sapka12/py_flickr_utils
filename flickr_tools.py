@@ -165,9 +165,15 @@ class FlickrTools:
     def add_tag(self, photo_id, tag):
         self.flickr.photos.addTags(photo_id=photo_id, tags=tag)
 
+<<<<<<< HEAD
     def get_tags(self, picture_id):
         response = self.flickr.tags.getListPhoto(photo_id=picture_id)
         return [tag.attrib['raw'] for tag in list(response[0][0])]
 
     def remove_from_set(self, picture_id, set_id):
         self.flickr.photosets.removePhoto(photoset_id=set_id, photo_id=picture_id)
+=======
+    def get_tags(self, pic_id):
+        response = self.flickr.tags.getListPhoto(photo_id=pic_id)
+        return [tag.attrib['raw'] for tag in list(response[0][0])]
+>>>>>>> master

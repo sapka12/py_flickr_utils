@@ -3,7 +3,16 @@ from flickr_tools import FlickrTools, print_time
 
 
 def contains_tag(picture_id, tag, flickr):
+<<<<<<< HEAD
     return tag in flickr.get_tags(picture_id)
+=======
+    return bool(tag in flickr.get_tags(picture_id))
+
+
+def remove_from_set(picture_id, set_id, flickr):
+    print("remove", picture_id, "from", set_id)
+    flickr.photosets.removePhoto(photoset_id=set_id, photo_id=picture_id)
+>>>>>>> master
 
 
 def main(args):
