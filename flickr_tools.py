@@ -125,14 +125,14 @@ class FlickrTools:
         response = self.flickr.photosets.create(title=album, primary_photo_id=photo_id)
         return response[0].get("id")
 
-    def add_to_album(self, pic_id, album):
+    def add_to_album(self, pic_id, album_name):
         all_albums = self.photosets()
-        same_albumnames = [a for a in all_albums if a[1] == album]
+        same_albumnames = [a for a in all_albums if a[1] == album_name]
         if same_albumnames:
             album_id = same_albumnames[0][0]
             self.flickr.photosets.addPhoto(photoset_id=album_id, photo_id=pic_id)
         else:
-            return self.create_album(album, pic_id)
+            return self.create_album(album_name, pic_id)
 
     def pixels(self, fname):
         im = Image.open(fname)
@@ -174,3 +174,11 @@ class FlickrTools:
 
     def remove_from_set(self, picture_id, set_id):
         self.flickr.photosets.removePhoto(photoset_id=set_id, photo_id=picture_id)
+
+
+    def upload_photo(self, filename):
+        response = self.flickr.upload(filename)
+
+        # magic
+        photoid = response[0].text
+        return photoid
