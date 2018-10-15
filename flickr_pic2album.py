@@ -4,7 +4,7 @@ from flickr_tools import FlickrTools
 from log import log
 import logging
 
-LOG = log(__file__)
+LOG = log(__name__)
 
 
 def get_album(title):
@@ -34,19 +34,25 @@ def get_album(title):
 def upload(pic, album, flickr):
     try:
         flickr.add_to_album(pic['id'], album)
-        LOG.debug(pic['title'], "added to", album)
+        LOG.debug('%s added to %s', pic['title'], album)
     except FlickrError as f_err:
-        LOG.debug(pic['title'], "already in", album)
+        LOG.debug('%s already in %s', pic['title'], album)
 
 
 def main(args):
+    LOG.debug("flickr pic 2 album started")
     albumname = args.album_name if args.album_name else "Auto Upload"
+    LOG.debug("albumname: {}".format(albumname))
     flickr = FlickrTools(args.api_key, args.api_secret, args.token, args.token_secret)
     set_id = flickr.photoset_id(albumname)
+    LOG.debug("album id: {}".format(set_id))
     pics = flickr.pictures_in_photoset(set_id)
+
+    LOG.debug("pictures {}".format(len(pics)))
 
     for pic in pics:
         album = get_album(pic['title'])
+        LOG.debug("album {} for {}".format(album, pic['title']))
         if album:
             upload(pic, album, flickr)
 
