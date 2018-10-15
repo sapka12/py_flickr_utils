@@ -1,6 +1,10 @@
 import argparse
 from flickrapi import FlickrError
 from flickr_tools import FlickrTools
+from log import log
+import logging
+
+LOG = log(__file__)
 
 
 def get_album(title):
@@ -30,9 +34,9 @@ def get_album(title):
 def upload(pic, album, flickr):
     try:
         flickr.add_to_album(pic['id'], album)
-        print(pic['title'], "added to", album)
+        LOG.debug(pic['title'], "added to", album)
     except FlickrError as f_err:
-        print(pic['title'], "already in", album)
+        LOG.debug(pic['title'], "already in", album)
 
 
 def main(args):
@@ -48,13 +52,18 @@ def main(args):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Download the content of a Flickr album.')
-    parser.add_argument('--album_name', help="name of the Flickr album", type=str)
-    parser.add_argument('--tag', help="add this tag to the duplicated pictures", type=str)
+    try:
+        parser = argparse.ArgumentParser(
+            description='Put the picures from the selected album into month based albums based on filenames'
+        )
+        parser.add_argument('--album_name', help="name of the Flickr album", type=str)
+        parser.add_argument('--tag', help="add this tag to the duplicated pictures", type=str)
 
-    parser.add_argument('--api_key', help="id of the Flickr album", type=str, required=True)
-    parser.add_argument('--api_secret', help="id of the Flickr album", type=str, required=True)
-    parser.add_argument('--token', help="id of the Flickr album", type=str, required=True)
-    parser.add_argument('--token_secret', help="id of the Flickr album", type=str, required=True)
+        parser.add_argument('--api_key', help="id of the Flickr album", type=str, required=True)
+        parser.add_argument('--api_secret', help="id of the Flickr album", type=str, required=True)
+        parser.add_argument('--token', help="id of the Flickr album", type=str, required=True)
+        parser.add_argument('--token_secret', help="id of the Flickr album", type=str, required=True)
 
-    main(parser.parse_args())
+        main(parser.parse_args())
+    except Exception as e:
+        logging.exception("message")

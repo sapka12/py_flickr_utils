@@ -1,4 +1,3 @@
-import logging
 import os
 import urllib
 from contextlib import contextmanager
@@ -9,8 +8,6 @@ import hashlib
 from idna import unicode
 from pip._vendor.distlib.compat import raw_input
 from PIL import Image
-
-log_file = "flickr_up.log"
 
 
 @contextmanager
@@ -43,13 +40,6 @@ class FlickrTools:
         return flickr.token_cache.token.token, flickr.token_cache.token.token_secret
 
     def get_flickr(self, api_key, api_secret, token, token_secret):
-        logging.basicConfig(
-            filename=log_file,
-            format='%(asctime)s %(levelname)s: %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S',
-            level=logging.WARN
-        )
-
         return flickrapi.FlickrAPI(api_key, api_secret, token=FlickrAccessToken(token, token_secret, u'write'))
 
     def photosets(self):
@@ -174,7 +164,6 @@ class FlickrTools:
 
     def remove_from_set(self, picture_id, set_id):
         self.flickr.photosets.removePhoto(photoset_id=set_id, photo_id=picture_id)
-
 
     def upload_photo(self, filename):
         response = self.flickr.upload(filename)
