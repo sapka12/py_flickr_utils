@@ -10,3 +10,7 @@ def retry(f, _times=1, **args):
             ex = e
             _times -= 1
     raise ex
+
+
+def retry5x(f, **args):
+    return retry(f, _times=5, **args)

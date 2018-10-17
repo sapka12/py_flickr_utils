@@ -1,6 +1,10 @@
 import argparse
 from flickr_tools import FlickrTools, print_time
 import os
+from retry import retry5x
+from log import log
+
+LOG = log(__name__)
 
 
 def _contains(album, filename, flickr):
@@ -43,15 +47,18 @@ def is_pic_in_album(path, album_id, flickr):
 def upload_into_album(album_name, path, flickr):
     photo_id = flickr.upload_photo(path)
     flickr.add_to_album(photo_id, album_name)
-    print("uploaded", path)
+    LOG.info('uploaded %s', path)
 
 
 def upload_path(path, flickr):
-    album_name = parse_foldername(path)
-    album_id = flickr.photoset_id(album_name)
+    def upload_path_once():
+        album_name = parse_foldername(path)
+        album_id = flickr.photoset_id(album_name)
 
-    if (not album_id) or (not is_pic_in_album(path, album_id, flickr)):
-        upload_into_album(album_name, path, flickr)
+        if (not album_id) or (not is_pic_in_album(path, album_id, flickr)):
+            upload_into_album(album_name, path, flickr)
+
+    retry5x(upload_path_once)
 
 
 def main(args):
@@ -68,15 +75,19 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='upload all pictures to Flickr into albums from a folder recursively')
-    parser.add_argument('--folder', help="source folder of the pictures", type=str, required=True)
+    try:
+        parser = argparse.ArgumentParser(description='upload all pictures to Flickr into albums from a folder recursively')
+        parser.add_argument('--folder', help="source folder of the pictures", type=str, required=True)
 
-    parser.add_argument('--api_key', help="id of the Flickr album", type=str, required=True)
-    parser.add_argument('--api_secret', help="id of the Flickr album", type=str, required=True)
-    parser.add_argument('--token', help="id of the Flickr album", type=str, required=True)
-    parser.add_argument('--token_secret', help="id of the Flickr album", type=str, required=True)
+        parser.add_argument('--api_key', help="id of the Flickr album", type=str, required=True)
+        parser.add_argument('--api_secret', help="id of the Flickr album", type=str, required=True)
+        parser.add_argument('--token', help="id of the Flickr album", type=str, required=True)
+        parser.add_argument('--token_secret', help="id of the Flickr album", type=str, required=True)
 
-    args = parser.parse_args()
+        args = parser.parse_args()
 
-    with print_time():
-        main(args)
+        with print_time():
+            main(args)
+    except Exception as e:
+        import logging
+        logging.exception("message")

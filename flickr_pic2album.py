@@ -3,7 +3,7 @@ from flickrapi import FlickrError
 from flickr_tools import FlickrTools
 from log import log
 import logging
-from retry import retry
+from retry import retry5x
 
 LOG = log(__name__)
 
@@ -41,7 +41,7 @@ def add_pic_to_album(pic, album, flickr):
         except FlickrError:
             LOG.debug('%s already in %s', pic_title, album)
 
-    retry(add_pic_to_album_once, _times=5)
+    retry5x(add_pic_to_album_once)
 
 
 def main(args):

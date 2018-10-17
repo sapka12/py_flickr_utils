@@ -8,7 +8,9 @@ import hashlib
 from idna import unicode
 from pip._vendor.distlib.compat import raw_input
 from PIL import Image
+from log import log
 
+LOG = log(__name__)
 
 @contextmanager
 def print_time():
@@ -16,7 +18,7 @@ def print_time():
     start = datetime.datetime.now()
     yield
     end = datetime.datetime.now()
-    print(end - start)
+    LOG.info('time spent: %s', str(end-start))
 
 
 class FlickrTools:
