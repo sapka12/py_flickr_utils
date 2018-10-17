@@ -3,6 +3,7 @@ from flickrapi import FlickrError
 from flickr_tools import FlickrTools
 from log import log
 import logging
+from retry import retry
 
 LOG = log(__name__)
 
@@ -31,30 +32,30 @@ def get_album(title):
             return album_format(year, month)
 
 
-def upload(pic, album, flickr):
-    try:
-        flickr.add_to_album(pic['id'], album)
-        LOG.debug('%s added to %s', pic['title'], album)
-    except FlickrError as f_err:
-        LOG.debug('%s already in %s', pic['title'], album)
+def add_pic_to_album(pic, album, flickr):
+    def add_pic_to_album_once():
+        try:
+            pic_id, pic_title = pic['id'], pic['title']
+            flickr.add_to_album(pic_id, album)
+            LOG.info('%s added to %s', pic_title, album)
+        except FlickrError:
+            LOG.debug('%s already in %s', pic_title, album)
+
+    retry(add_pic_to_album_once, _times=5)
 
 
 def main(args):
     LOG.debug("flickr pic 2 album started")
     albumname = args.album_name if args.album_name else "Auto Upload"
-    LOG.debug("albumname: {}".format(albumname))
     flickr = FlickrTools(args.api_key, args.api_secret, args.token, args.token_secret)
     set_id = flickr.photoset_id(albumname)
-    LOG.debug("album id: {}".format(set_id))
     pics = flickr.pictures_in_photoset(set_id)
-
-    LOG.debug("pictures {}".format(len(pics)))
 
     for pic in pics:
         album = get_album(pic['title'])
         LOG.debug("album {} for {}".format(album, pic['title']))
         if album:
-            upload(pic, album, flickr)
+            add_pic_to_album(pic, album, flickr)
 
 
 if __name__ == '__main__':
