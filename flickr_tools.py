@@ -87,7 +87,7 @@ class FlickrTools:
     def set_photo_title(self, photo_id, title):
         self.flickr.photos.setMeta(photo_id=photo_id, title=title)
 
-    def download(self, photo_id, filename, prefix=""):
+    def download(self, photo_id, filename, prefix="", folder="./"):
         label_photo = "Original"
         label_video = "Video Original"
         ext_photo = ".jpg"
@@ -104,14 +104,10 @@ class FlickrTools:
             list(response[0])
         ))[0].attrib["source"]
 
-        filename = prefix + (filename if filename.endswith(ext) else filename + ext)
+        filename = folder + prefix + (filename if filename.endswith(ext) else filename + ext)
 
         print("downloading: ", filename, url)
-
-        try:
-            urllib.request.urlretrieve(url, filename)
-        except:
-            print("error during download", filename, url)
+        urllib.request.urlretrieve(url, filename)
 
     def create_album(self, album, photo_id):
         response = self.flickr.photosets.create(title=album, primary_photo_id=photo_id)
