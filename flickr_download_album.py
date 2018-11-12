@@ -53,12 +53,13 @@ def download_album(album, flickr):
 
 def main(args):
     flickr = FlickrTools(args.api_key, args.api_secret, args.token, args.token_secret)
-    download_album(args.album, flickr)
+    for album in args.album:
+        download_album(album, flickr)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Download the content of a Flickr album.')
-    parser.add_argument('--album', help="name or id of the Flickr album", type=str, required=True)
+    parser.add_argument('--album', help="name or id of the Flickr album", type=str, nargs='+', required=True)
 
     parser.add_argument('--api_key', help="id of the Flickr album", type=str, required=True)
     parser.add_argument('--api_secret', help="id of the Flickr album", type=str, required=True)
