@@ -1,6 +1,8 @@
 import argparse
 from flickr_tools import FlickrTools
+from log import log
 
+LOG = log(__name__)
 out = "out.txt"
 
 
@@ -16,6 +18,7 @@ def downloaded_ids():
 
 
 def download_album(album, flickr):
+    LOG.info("download_album: {}".format(album))
     album_id = flickr.album_id(album)
     if not album_id:
         album_id = album
@@ -23,10 +26,10 @@ def download_album(album, flickr):
     downloaded = downloaded_ids()
 
     pics = flickr.pictures_in_photoset(album_id)
-    print("all pictures in album:", len(pics))
+    LOG.info("all pictures in album: {}".format(len(pics)))
 
     photos_to_download = [p for p in pics if not (p['id'] in downloaded)]
-    print("photos_to_download:", len(photos_to_download))
+    LOG.info("photos_to_download: {}".format(len(photos_to_download)))
 
     directory = "./{}/".format(album)
     import os
@@ -41,14 +44,14 @@ def download_album(album, flickr):
             add_to_file(photo['id'])
         except:
             failed.append(photo['id'])
-            print("could not download:", photo['id'], photo['title'])
+            LOG.info("could not download: {} {}".format(photo['id'], photo['title']))
         counter += 1
-        print(counter, "/", len(photos_to_download))
+        LOG.info("{}/{}".format(counter, len(photos_to_download)))
 
     if failed:
-        print("failed:")
+        LOG.warning("failed:")
         for f in failed:
-            print(f)
+            LOG.warning(f)
 
 
 def main(args):
